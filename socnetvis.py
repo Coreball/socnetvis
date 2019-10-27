@@ -1,5 +1,6 @@
 import glob
 import json
+from pyvis.network import Network
 
 nodes = {}
 
@@ -62,21 +63,33 @@ def add_empty_node(new_nodes, name):
     return new_nodes[name]
 
 
+def network_visualization():
+    weights = {'best': 4, 'good': 2, 'friend': 1, 'acquaintance': 0.5}
+    net = Network('100%', '100%', bgcolor='#222', font_color='white')
+    net.barnes_hut()
+    for name, node in nodes.items():
+        for connection_type in node['connections']:
+            for partner in node['connections'][connection_type]:
+                net.add_node(name, name, title=name)
+                net.add_node(partner, partner, title=partner)
+                net.add_edge(name, partner, value=weights[connection_type])
+    for net_node in net.nodes:
+        node = nodes[net_node['id']]
+        net_node['value'] = len(net.get_adj_list()[net_node['id']])
+        net_node['title'] += f" <br>{net_node['value']} Connections<br>"
+        for connection_type in node['connections']:
+            if node['connections'][connection_type]:
+                net_node['title'] += f"<br>{connection_type.capitalize()}<br>&nbsp&nbsp"
+                net_node['title'] += "<br>&nbsp&nbsp".join(node['connections'][connection_type]) + "<br>"
+    net.show('socnetvis.html')
+
+
 def main():
-    nodes['Changyuan Lin'] = {}
-    nodes['Changyuan Lin']['name'] = 'Changyuan Lin'
-    nodes['Changyuan Lin']['notes'] = ""
-    nodes['Changyuan Lin']['connections'] = {}
-    nodes['Changyuan Lin']['connections']['best'] = []
-    nodes['Changyuan Lin']['connections']['good'] = []
-    nodes['Changyuan Lin']['connections']['friend'] = ['A Person', 'B Person']
-    nodes['Changyuan Lin']['connections']['acquaintance'] = []
-    save()
-    nodes.clear()
     load()
     print(nodes)
     verify_connections(fix=True)
     print(nodes)
+    network_visualization()
 
 
 if __name__ == '__main__':

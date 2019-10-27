@@ -2,9 +2,7 @@
     "name": "A Person",
     "notes": "I didn't want to use real people",
     "connections": {
-        "best": [
-            "B Person"
-        ],
+        "best": [],
         "good": [],
         "friend": [
             "Changyuan Lin",
