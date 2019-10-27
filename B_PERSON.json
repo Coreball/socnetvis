@@ -5,8 +5,11 @@
         "best": [],
         "good": [],
         "friend": [
-            "Changyuan Lin"
+            "Changyuan Lin",
+            "A Person"
         ],
-        "acquaintance": []
+        "acquaintance": [
+            "C Person"
+        ]
     }
 }

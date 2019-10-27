@@ -2,10 +2,13 @@
     "name": "A Person",
     "notes": "I didn't want to use real people",
     "connections": {
-        "best": [],
+        "best": [
+            "B Person"
+        ],
         "good": [],
         "friend": [
-            "Changyuan Lin"
+            "Changyuan Lin",
+            "C Person"
         ],
         "acquaintance": []
     }
