@@ -1,8 +1,16 @@
+#!/usr/bin/env python3
+
 import glob
 import json
+import sys
 from pyvis.network import Network
 
 nodes = {}
+help_text = """usage:
+  verify    Find errors in nodes in current directory
+  fix       Attempt to fix improperly linked nodes in current directory
+  show      Create network visualization
+  help      Show help"""
 
 
 def load():
@@ -22,6 +30,7 @@ def save():
 def verify_connections(fix=False):
     new_nodes = {}
     first_run = True  # Am I a do-while loop
+    no_problems = True
     while first_run or new_nodes:
         new_nodes.clear()  # Loop again if last run had new nodes
         for name, node in nodes.items():
@@ -38,6 +47,8 @@ def verify_connections(fix=False):
                                 print(f"\t{partner} was already added to new nodes")
                             print(f"\tAdding {name} to {partner}'s list of {connection_type}")
                             new_nodes[partner]['connections'][connection_type].append(name)
+                        else:
+                            no_problems = False
                     elif name not in nodes[partner]['connections'][connection_type]:
                         print(f"{name}: is not in {partner}'s "
                               f"list of {connection_type}")
@@ -51,9 +62,12 @@ def verify_connections(fix=False):
                             if not conflict:
                                 print(f"\tAdding {name} to {partner}'s list of {connection_type}")
                                 nodes[partner]['connections'][connection_type].append(name)
+                        else:
+                            no_problems = False
         if fix:
             nodes.update(new_nodes)
         first_run = False
+        return no_problems
 
 
 def add_empty_node(new_nodes, name):
@@ -85,11 +99,23 @@ def network_visualization():
 
 
 def main():
-    load()
-    print(nodes)
-    verify_connections(fix=True)
-    print(nodes)
-    network_visualization()
+    if len(sys.argv) == 1 or sys.argv[1] == 'help':
+        print(help_text)
+    elif sys.argv[1] == 'verify':
+        load()
+        verify_connections(fix=False)
+    elif sys.argv[1] == 'fix':
+        load()
+        verify_connections(fix=True)
+        save()
+    elif sys.argv[1] == 'show':
+        load()
+        if verify_connections(fix=False):
+            network_visualization()
+        else:
+            print("Nodes failed to verify, not generating visualization!")
+    else:
+        print(f"socnetvis: {sys.argv[1]} is not an a socnetvis command. Use 'help'")
 
 
 if __name__ == '__main__':
