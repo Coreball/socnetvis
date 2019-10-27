@@ -21,9 +21,12 @@ def save():
 def main():
     nodes['Changyuan Lin'] = {}
     nodes['Changyuan Lin']['name'] = 'Changyuan Lin'
-    nodes['Changyuan Lin']['age'] = 5
-    nodes['Changyuan Lin']['list'] = [1, 2, 3, 4]
-    nodes['Changyuan Lin']['otherlist'] = ['a', 'b', 'c']
+    nodes['Changyuan Lin']['notes'] = ""
+    nodes['Changyuan Lin']['connections'] = {}
+    nodes['Changyuan Lin']['connections']['best'] = []
+    nodes['Changyuan Lin']['connections']['good'] = []
+    nodes['Changyuan Lin']['connections']['friend'] = ['A Person', 'B Person']
+    nodes['Changyuan Lin']['connections']['acquaintance'] = []
     save()
     nodes.clear()
     load()
