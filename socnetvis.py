@@ -6,11 +6,12 @@ import sys
 from pyvis.network import Network
 
 nodes = {}
-help_text = """usage:
-  verify    Find errors in nodes in current directory
-  fix       Attempt to fix improperly linked nodes in current directory
-  show      Create network visualization
-  help      Show help"""
+help_text = """usage: socnetvis <command>
+    verify    Show linkage errors for nodes in current directory
+    fix       Attempt to fix improperly linked nodes or add referenced nodes that don't exist
+    add       Add new node file with no connections and specified name
+    show      Create network visualization as HTML file
+    help      Show help"""
 
 
 def load():
@@ -77,6 +78,16 @@ def add_empty_node(new_nodes, name):
     return new_nodes[name]
 
 
+def add_node_json(name):
+    filename = f"{name.replace(' ', '_').upper()}.json"
+    with open(filename, 'w') as file:
+        print(f"creating {filename}")
+        node = {"name": name, "notes": "",
+                "connections": {"best": [], "good": [],
+                                "friend": [], "acquaintance": []}}
+        json.dump(node, file, indent=4)
+
+
 def network_visualization():
     weights = {'best': 4, 'good': 2, 'friend': 1, 'acquaintance': 0.5}
     net = Network('100%', '100%', bgcolor='#222', font_color='white')
@@ -108,6 +119,12 @@ def main():
         load()
         verify_connections(fix=True)
         save()
+    elif sys.argv[1] == 'add':
+        if len(sys.argv) > 2:
+            for name in sys.argv[2:]:
+                add_node_json(name)
+        else:
+            print("Please specify a name or names to be added")
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
