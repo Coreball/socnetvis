@@ -12,6 +12,7 @@ help_text = """usage: socnetvis <command>
     fix       Attempt to fix improperly linked nodes or add referenced nodes that don't exist
     add       Add new node file with no connections and specified name
     remove    Remove all occurrences of name and delete its file
+    rename    Rename all occurrences of name to a new name and rename file accordingly
     show      Create network visualization as HTML file
     help      Show help"""
 
@@ -93,6 +94,39 @@ def remove_node(remove_name):
         print(f"{remove_name}: was not found in the list of nodes, could not remove")
 
 
+def rename_node(original_name, rename_name):
+    for name, node in nodes.items():
+        for connection_type in node['connections']:
+            if original_name in node['connections'][connection_type]:
+                if rename_name in node['connections'][connection_type]:
+                    print(f"{name}: {connection_type} {original_name} "
+                          f"replacement {rename_name} already exists, removing {original_name}")
+                    node['connections'][connection_type].remove(original_name)
+                else:
+                    print(f"{name}: renaming {connection_type} {original_name} to {rename_name}")
+                    node['connections'][connection_type].remove(original_name)
+                    node['connections'][connection_type].append(rename_name)
+    if original_name in nodes:
+        print(f"Renaming {original_name} in list of all nodes to {rename_name}")
+        if rename_name in nodes:
+            print(f"\tWARNING: {rename_name} already exists, merging...")
+            merge_connections(rename_name, original_name)
+        else:
+            nodes[original_name]['name'] = rename_name
+            nodes[rename_name] = nodes[original_name]
+        del nodes[original_name]
+    else:
+        print(f"{original_name}: was not found in the list of nodes, could not rename")
+
+
+def merge_connections(destination, merge):
+    for connection_type in nodes[merge]['connections']:
+        for partner in nodes[merge]['connections'][connection_type]:
+            if partner not in nodes[destination]['connections'][connection_type]:
+                # This should deal with duplicates
+                nodes[destination]['connections'][connection_type].append(partner)
+
+
 def add_node_json(name):
     filename = f"{name.replace(' ', '_').upper()}.json"
     with open(filename, 'w') as file:
@@ -159,6 +193,14 @@ def main():
             save()
         else:
             print("Please specify a name or names to be removed")
+    elif sys.argv[1] == 'rename':
+        if len(sys.argv) == 4:
+            load()
+            rename_node(sys.argv[2], sys.argv[3])
+            remove_node_json(sys.argv[2])
+            save()
+        else:
+            print("Please specify a name and its replacement only")
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
