@@ -3,6 +3,7 @@
 import glob
 import json
 import sys
+import os
 from pyvis.network import Network
 
 nodes = {}
@@ -10,6 +11,7 @@ help_text = """usage: socnetvis <command>
     verify    Show linkage errors for nodes in current directory
     fix       Attempt to fix improperly linked nodes or add referenced nodes that don't exist
     add       Add new node file with no connections and specified name
+    remove    Remove all occurrences of name and delete its file
     show      Create network visualization as HTML file
     help      Show help"""
 
@@ -78,14 +80,36 @@ def add_empty_node(new_nodes, name):
     return new_nodes[name]
 
 
+def remove_node(remove_name):
+    for name, node in nodes.items():
+        for connection_type in node['connections']:
+            if remove_name in node['connections'][connection_type]:
+                print(f"{name}: removing {remove_name} from list of {connection_type}")
+                node['connections'][connection_type].remove(remove_name)
+    if remove_name in nodes:
+        print(f"Removing {remove_name} from list of all nodes")
+        del nodes[remove_name]
+    else:
+        print(f"{remove_name}: was not found in the list of nodes, could not remove")
+
+
 def add_node_json(name):
     filename = f"{name.replace(' ', '_').upper()}.json"
     with open(filename, 'w') as file:
-        print(f"creating {filename}")
+        print(f"Creating {filename}")
         node = {"name": name, "notes": "",
                 "connections": {"best": [], "good": [],
                                 "friend": [], "acquaintance": []}}
         json.dump(node, file, indent=4)
+
+
+def remove_node_json(remove_name):
+    filename = f"{remove_name.replace(' ', '_').upper()}.json"
+    if os.path.exists(filename):
+        print(f"Removing {filename}")
+        os.remove(filename)
+    else:
+        print(f"{filename} was not found and could not be removed")
 
 
 def network_visualization():
@@ -125,6 +149,16 @@ def main():
                 add_node_json(name)
         else:
             print("Please specify a name or names to be added")
+    elif sys.argv[1] == 'remove':
+        if len(sys.argv) > 2:
+            load()
+            verify_connections(fix=True)
+            for remove_name in sys.argv[2:]:
+                remove_node(remove_name)
+                remove_node_json(remove_name)
+            save()
+        else:
+            print("Please specify a name or names to be removed")
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
