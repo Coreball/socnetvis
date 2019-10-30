@@ -38,8 +38,26 @@ def verify_connections(fix=False):
     while first_run or new_nodes:
         new_nodes.clear()  # Loop again if last run had new nodes
         for name, node in nodes.items():
+            all_partners = set()
             for connection_type in node['connections']:
+                connection_type_partners = set()
+                duplicates = []
                 for partner in node['connections'][connection_type]:
+                    if partner in connection_type_partners:
+                        print(f"{name}: {connection_type} {partner} "
+                              f"appears more than once in {connection_type}")
+                        if fix:
+                            print(f"\tRemoving duplicate {partner} from list of {connection_type}")
+                            duplicates.append(partner)
+                        continue
+                    connection_type_partners.add(partner)
+                    if partner in all_partners:
+                        print(f"{name}: {connection_type} {partner} "
+                              f"appears in more than one connection type")
+                        if fix:
+                            print(f"\tCONFLICT: {partner} exists in multiple connection types!")
+                        continue
+                    all_partners.add(partner)
                     if partner not in nodes:
                         print(f"{name}: {connection_type} {partner} "
                               f"is not in list of all nodes")
@@ -68,6 +86,9 @@ def verify_connections(fix=False):
                                 nodes[partner]['connections'][connection_type].append(name)
                         else:
                             no_problems = False
+                if fix and duplicates:
+                    for partner in duplicates:
+                        node['connections'][connection_type].remove(partner)  # Should deal with > 1 duplicate
         if fix:
             nodes.update(new_nodes)
         first_run = False
