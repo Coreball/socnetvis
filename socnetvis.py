@@ -8,20 +8,27 @@ from pyvis.network import Network
 
 nodes = {}
 help_text = """usage: socnetvis <command>
-    verify    Show linkage errors for nodes in current directory
-    fix       Attempt to fix improperly linked nodes or add referenced nodes that don't exist
-    add       Add new node file with no connections and specified name
-    remove    Remove all occurrences of name and delete its file
-    rename    Rename all occurrences of name to a new name and rename file accordingly
-    show      Create network visualization as HTML file
-    help      Show help"""
+    verify                  Show linkage errors for nodes in current directory
+    fix                     Attempt to fix improperly linked nodes or add nonexistent referenced nodes
+    add <name>              Add new node file with no connections and specified name
+    remove <name>           Remove all occurrences of name and delete its file
+    rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
+    show                    Create network visualization as HTML file
+    help                    Show help"""
 
 
 def load():
+    json_errors = []
     for filename in glob.glob('*.json'):
-        with open(filename, 'r') as file:
-            node = json.load(file)
-            nodes[node['name']] = node
+        try:
+            with open(filename, 'r') as file:
+                node = json.load(file)
+                nodes[node['name']] = node
+        except json.decoder.JSONDecodeError as err:
+            json_errors.append(f"Decode error encountered when loading {filename}\n"
+                               f"\t{err.msg} line {err.lineno} column {err.colno}")
+    if json_errors:
+        sys.exit('\n'.join(json_errors))
 
 
 def save():
