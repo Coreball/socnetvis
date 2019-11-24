@@ -10,10 +10,10 @@ nodes = {}
 help_text = """usage: socnetvis <command>
     verify                  Show linkage errors for nodes in current directory
     fix                     Attempt to fix improperly linked nodes or add nonexistent referenced nodes
-    add <name>              Add new node file with no connections and specified name
-    remove <name>           Remove all occurrences of name and delete its file
+    add <name>              Add new node file(s) with no connections and specified name(s)
+    remove <name>           Remove all occurrences of name(s) and delete corresponding file(s)
     rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
-    show                    Create network visualization as HTML file
+    show [--alphabetize]    Create network visualization as HTML file [and alphabetize connection lists]
     help                    Show help"""
 
 
@@ -174,7 +174,7 @@ def remove_node_json(remove_name):
         print(f"{filename} was not found and could not be removed")
 
 
-def network_visualization():
+def network_visualization(alphabet=False):
     weights = {'best': 4, 'good': 2, 'friend': 1, 'acquaintance': 0.5}
     net = Network('100%', '100%', bgcolor='#222', font_color='white')
     net.barnes_hut()
@@ -187,11 +187,15 @@ def network_visualization():
     for net_node in net.nodes:
         node = nodes[net_node['id']]
         net_node['value'] = len(net.get_adj_list()[net_node['id']])
-        net_node['title'] += f" <br>{net_node['value']} Connections<br>"
+        net_node['title'] += f"<br>{net_node['value']} Connections<br>"
+        if node['notes']:
+            net_node['title'] += f"<i>{node['notes']}</i><br>"
         for connection_type in node['connections']:
             if node['connections'][connection_type]:
-                net_node['title'] += f"<br>{connection_type.capitalize()}<br>&nbsp&nbsp"
-                net_node['title'] += "<br>&nbsp&nbsp".join(node['connections'][connection_type]) + "<br>"
+                connections = node['connections'][connection_type]
+                net_node['title'] += f"<br>{connection_type.capitalize()} " \
+                                     f"({len(connections)})<br>&nbsp&nbsp"
+                net_node['title'] += "<br>&nbsp&nbsp".join(sorted(connections) if alphabet else connections) + "<br>"
     net.show('socnetvis.html')
 
 
@@ -232,7 +236,10 @@ def main():
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
-            network_visualization()
+            if len(sys.argv) > 2 and sys.argv[2] == '--alphabetize':
+                network_visualization(alphabet=True)
+            else:
+                network_visualization(alphabet=False)
         else:
             print("Nodes failed to verify, not generating visualization!")
     else:
