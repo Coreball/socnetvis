@@ -13,6 +13,7 @@ help_text = """usage: socnetvis <command>
     add <name>              Add new node file(s) with no connections and specified name(s)
     remove <name>           Remove all occurrences of name(s) and delete corresponding file(s)
     rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
+    anonymize               Anonymize all names and save output files to a separate folder
     show [--alphabetize]    Create network visualization as HTML file [and alphabetize connection lists]
     help                    Show help"""
 
@@ -174,6 +175,22 @@ def remove_node_json(remove_name):
         print(f"{filename} was not found and could not be removed")
 
 
+def anonymize():
+    try:
+        from faker import Faker
+        fake = Faker()
+        fake.seed(1865)
+        name_mapping = {}
+        original_names = list(nodes.keys())
+        for name in original_names:
+            anonymous = fake.name()
+            name_mapping[name] = anonymous
+            rename_node(name, anonymous)
+        print(f"Name Mapping: {name_mapping}")
+    except ImportError:
+        sys.exit("The Faker package is not installed and is required for anonymize")
+
+
 def network_visualization(alphabet=False):
     weights = {'best': 4, 'good': 2, 'friend': 1, 'acquaintance': 0.5}
     net = Network('100%', '100%', bgcolor='#222', font_color='white')
@@ -233,6 +250,10 @@ def main():
             save()
         else:
             print("Please specify a name and its replacement only")
+    elif sys.argv[1] == 'anonymize':
+        load()
+        anonymize()
+        network_visualization()
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
