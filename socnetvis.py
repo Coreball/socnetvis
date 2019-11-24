@@ -7,13 +7,14 @@ import os
 from pyvis.network import Network
 
 nodes = {}
+anonymize_mapping = {}
 help_text = """usage: socnetvis <command>
     verify                  Show linkage errors for nodes in current directory
     fix                     Attempt to fix improperly linked nodes or add nonexistent referenced nodes
     add <name>              Add new node file(s) with no connections and specified name(s)
     remove <name>           Remove all occurrences of name(s) and delete corresponding file(s)
     rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
-    anonymize [seed]        Anonymize names, offset by [seed] if present else fully random; save to a separate folder
+    anonymize [seed]        Anonymize names, offset by [seed] if present else fully random; save to a directory
     show [--alphabetize]    Create network visualization as HTML file [and alphabetize connection lists]
     help                    Show help"""
 
@@ -32,11 +33,21 @@ def load():
         sys.exit('\n'.join(json_errors))
 
 
-def save():
+def save(path='.'):
+    if not os.path.isdir(path):
+        os.makedirs(path)
     for node in nodes.values():
         filename = f"{node['name'].replace(' ', '_').upper()}.json"
-        with open(filename, 'w') as file:
+        filepath = os.path.join(path, filename)
+        with open(filepath, 'w') as file:
             json.dump(node, file, indent=4)
+
+
+def save_anonymize_mapping(path='./anonymize.txt'):
+    if not os.path.isdir(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    with open(path, 'w') as file:
+        json.dump(anonymize_mapping, file, indent=4)
 
 
 def verify_connections(fix=False):
@@ -179,20 +190,21 @@ def anonymize(use_offset=False, name_offset=""):
     try:
         from faker import Faker
         fake = Faker()
-        name_mapping = {}
+        anonymize_mapping.clear()
         original_names = list(nodes.keys())
         for original_name in original_names:
             if use_offset:                                  # Basing seed on name stops list order interference
                 fake.seed(f"{name_offset}{original_name}")  # Otherwise just uses a random seed and does not change it
             anonymous = fake.name()
-            name_mapping[original_name] = anonymous
+            anonymize_mapping[original_name] = anonymous
             rename_node(original_name, anonymous)
-        print(f"Name Mapping: {name_mapping}")
+            # Warning: does not remove notes from nodes
+        print(f"Name Mapping: {anonymize_mapping}")
     except ImportError:
         sys.exit("The Faker package is not installed and is required for anonymize")
 
 
-def network_visualization(alphabet=False):
+def network_visualization(path='./socnetvis.html', alphabet=False):
     weights = {'best': 4, 'good': 2, 'friend': 1, 'acquaintance': 0.5}
     net = Network('100%', '100%', bgcolor='#222', font_color='white')
     net.barnes_hut()
@@ -214,7 +226,9 @@ def network_visualization(alphabet=False):
                 net_node['title'] += f"<br>{connection_type.capitalize()} " \
                                      f"({len(connections)})<br>&nbsp&nbsp"
                 net_node['title'] += "<br>&nbsp&nbsp".join(sorted(connections) if alphabet else connections) + "<br>"
-    net.show('socnetvis.html')
+    if not os.path.isdir(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    net.show(path)
 
 
 def main():
@@ -255,12 +269,17 @@ def main():
         if len(sys.argv) == 2:
             load()
             anonymize()
+            save(path='./anonymize/')
+            save_anonymize_mapping(path='./anonymize/anonymize_mapping.txt')
+            network_visualization(path='./anonymize/socnetvis.html')
         elif len(sys.argv) == 3:
             load()
             anonymize(use_offset=True, name_offset=sys.argv[2])
+            save(path='./anonymize/')
+            save_anonymize_mapping(path='./anonymize/anonymize_mapping.txt')
+            network_visualization(path='./anonymize/socnetvis.html')
         else:
             print("Please give one argument for the seed offset")
-        network_visualization()
     elif sys.argv[1] == 'show':
         load()
         if verify_connections(fix=False):
