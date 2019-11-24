@@ -13,7 +13,7 @@ help_text = """usage: socnetvis <command>
     add <name>              Add new node file(s) with no connections and specified name(s)
     remove <name>           Remove all occurrences of name(s) and delete corresponding file(s)
     rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
-    anonymize               Anonymize all names and save output files to a separate folder
+    anonymize [seed]        Anonymize names, offset by [seed] if present else fully random; save to a separate folder
     show [--alphabetize]    Create network visualization as HTML file [and alphabetize connection lists]
     help                    Show help"""
 
@@ -175,17 +175,18 @@ def remove_node_json(remove_name):
         print(f"{filename} was not found and could not be removed")
 
 
-def anonymize():
+def anonymize(use_offset=False, name_offset=""):
     try:
         from faker import Faker
         fake = Faker()
-        fake.seed(1865)
         name_mapping = {}
         original_names = list(nodes.keys())
-        for name in original_names:
+        for original_name in original_names:
+            if use_offset:                                  # Basing seed on name stops list order interference
+                fake.seed(f"{name_offset}{original_name}")  # Otherwise just uses a random seed and does not change it
             anonymous = fake.name()
-            name_mapping[name] = anonymous
-            rename_node(name, anonymous)
+            name_mapping[original_name] = anonymous
+            rename_node(original_name, anonymous)
         print(f"Name Mapping: {name_mapping}")
     except ImportError:
         sys.exit("The Faker package is not installed and is required for anonymize")
@@ -251,8 +252,14 @@ def main():
         else:
             print("Please specify a name and its replacement only")
     elif sys.argv[1] == 'anonymize':
-        load()
-        anonymize()
+        if len(sys.argv) == 2:
+            load()
+            anonymize()
+        elif len(sys.argv) == 3:
+            load()
+            anonymize(use_offset=True, name_offset=sys.argv[2])
+        else:
+            print("Please give one argument for the seed offset")
         network_visualization()
     elif sys.argv[1] == 'show':
         load()
