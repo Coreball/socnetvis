@@ -1,0 +1,38 @@
+{
+    "name": "Terri Morris",
+    "notes": "",
+    "connections": {
+        "best": [
+            "Ashley Shaffer",
+            "Aimee Martinez"
+        ],
+        "good": [
+            "Amy Fields",
+            "Cynthia Brown",
+            "Joseph Johnson"
+        ],
+        "friend": [
+            "Kyle Nguyen",
+            "Andrea Gilmore",
+            "Tyler Ramirez",
+            "Jeanette Brown",
+            "Nicholas Clark",
+            "Sara Terry",
+            "Karen Reid",
+            "Mark Curry",
+            "Christopher Castro",
+            "Melinda Keller",
+            "Kimberly Bradley",
+            "Christina Griffin",
+            "Mr. Austin Stout",
+            "Pamela Robinson"
+        ],
+        "acquaintance": [
+            "Molly Fisher MD",
+            "Heather Stout",
+            "Dawn Murray",
+            "Vincent Berry",
+            "Samantha Lee"
+        ]
+    }
+}

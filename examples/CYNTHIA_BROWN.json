@@ -1,0 +1,32 @@
+{
+    "name": "Cynthia Brown",
+    "notes": "",
+    "connections": {
+        "best": [
+            "Aimee Martinez"
+        ],
+        "good": [
+            "Ashley Shaffer",
+            "Terri Morris"
+        ],
+        "friend": [
+            "Andrea Gilmore",
+            "Nicholas Clark",
+            "Christina Griffin",
+            "Joseph Johnson"
+        ],
+        "acquaintance": [
+            "Molly Fisher MD",
+            "Heather Stout",
+            "Jeanette Brown",
+            "Amy Fields",
+            "Dawn Murray",
+            "Rachel Lane",
+            "Vincent Berry",
+            "Melinda Keller",
+            "Samantha Lee",
+            "Mr. Austin Stout",
+            "Erica Dixon"
+        ]
+    }
+}

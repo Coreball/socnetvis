@@ -1,0 +1,19 @@
+{
+    "name": "Mr. Travis Arnold",
+    "notes": "",
+    "connections": {
+        "best": [],
+        "good": [],
+        "friend": [
+            "Molly Fisher MD",
+            "Charlotte Hamilton",
+            "James Barber",
+            "Tara Cunningham"
+        ],
+        "acquaintance": [
+            "Ashley Shaffer",
+            "Kevin Fisher",
+            "Lisa Becker"
+        ]
+    }
+}

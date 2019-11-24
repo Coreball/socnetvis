@@ -1,0 +1,21 @@
+{
+    "name": "James Barber",
+    "notes": "",
+    "connections": {
+        "best": [],
+        "good": [
+            "Charlotte Hamilton"
+        ],
+        "friend": [
+            "Molly Fisher MD",
+            "Tara Cunningham",
+            "Mr. Travis Arnold"
+        ],
+        "acquaintance": [
+            "Ashley Shaffer",
+            "Andrea Gilmore",
+            "Kevin Fisher",
+            "Lisa Becker"
+        ]
+    }
+}

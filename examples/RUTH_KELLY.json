@@ -1,12 +1,12 @@
 {
-    "name": "A Person",
-    "notes": "I didn't want to use real people",
+    "name": "Ruth Kelly",
+    "notes": "",
     "connections": {
         "best": [],
         "good": [],
         "friend": [
-            "Changyuan Lin",
-            "C Person"
+            "Ashley Shaffer",
+            "Caitlyn Gonzalez PhD"
         ],
         "acquaintance": []
     }

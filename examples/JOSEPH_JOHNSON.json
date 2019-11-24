@@ -1,0 +1,32 @@
+{
+    "name": "Joseph Johnson",
+    "notes": "",
+    "connections": {
+        "best": [],
+        "good": [
+            "Ashley Shaffer",
+            "Terri Morris"
+        ],
+        "friend": [
+            "Andrea Gilmore",
+            "Cynthia Brown",
+            "Christopher Castro",
+            "Christina Griffin",
+            "Mr. Austin Stout",
+            "Aimee Martinez"
+        ],
+        "acquaintance": [
+            "Kyle Nguyen",
+            "Tyler Ramirez",
+            "Jeanette Brown",
+            "Kristin Obrien",
+            "Sara Terry",
+            "Karen Reid",
+            "Mark Curry",
+            "Melinda Keller",
+            "Troy Munoz",
+            "Kimberly Bradley",
+            "Chad Wright"
+        ]
+    }
+}
