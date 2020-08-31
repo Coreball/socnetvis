@@ -37,7 +37,7 @@ def save(path='.'):
     if not os.path.isdir(path):
         os.makedirs(path)
     for node in nodes.values():
-        filename = f"{node['name'].replace(' ', '_').upper()}.json"
+        filename = f"{node['name'].replace(' ', '_')}.json"
         filepath = os.path.join(path, filename)
         with open(filepath, 'w') as file:
             json.dump(node, file, indent=4)
@@ -168,7 +168,7 @@ def merge_connections(destination, merge):
 
 
 def add_node_json(name):
-    filename = f"{name.replace(' ', '_').upper()}.json"
+    filename = f"{name.replace(' ', '_')}.json"
     with open(filename, 'w') as file:
         print(f"Creating {filename}")
         node = {"name": name, "notes": "",
@@ -178,7 +178,7 @@ def add_node_json(name):
 
 
 def remove_node_json(remove_name):
-    filename = f"{remove_name.replace(' ', '_').upper()}.json"
+    filename = f"{remove_name.replace(' ', '_')}.json"
     if os.path.exists(filename):
         print(f"Removing {filename}")
         os.remove(filename)
