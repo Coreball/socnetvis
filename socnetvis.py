@@ -11,6 +11,7 @@ anonymize_mapping = {}
 help_text = """usage: socnetvis <command>
     verify                  Show linkage errors for nodes in current directory
     fix                     Attempt to fix improperly linked nodes or add nonexistent referenced nodes
+    link <a> <b> <type>     Create connection of <type> between nodes <a> and <b>, or change to <type>
     add <name>              Add new node file(s) with no connections and specified name(s)
     remove <name>           Remove all occurrences of name(s) and delete corresponding file(s)
     rename <old> <new>      Rename all occurrences of name to a new name and rename file accordingly
@@ -111,7 +112,7 @@ def verify_connections(fix=False):
         if fix:
             nodes.update(new_nodes)
         first_run = False
-        return no_problems
+    return no_problems # Did I accidentally indent this before? Indenting it seems wrong...
 
 
 def add_empty_node(new_nodes, name):
@@ -165,6 +166,27 @@ def merge_connections(destination, merge):
             if partner not in nodes[destination]['connections'][connection_type]:
                 # This should deal with duplicates
                 nodes[destination]['connections'][connection_type].append(partner)
+
+
+def link(a, b, t):
+    a_present, b_present = a in nodes, b in nodes
+    if not a_present or not b_present:
+        for present, name in (a_present, a), (b_present, b):
+            if not present:
+                print(f"{name} was not found in the list of nodes")
+        return False # No success, should not save
+    for name, partner in (a, b), (b, a):
+        for connection_type in nodes[name]['connections']:
+            connections = nodes[name]['connections'][connection_type]
+            if partner in connections and connection_type != t:
+                print(f"Removing {partner} from {name}'s list of {connection_type}")
+                connections.remove(partner) # Watch out if it appears twice tho
+        if partner not in nodes[name]['connections'][t]:
+            print(f"Adding {partner} to {name}'s list of {t}")
+            nodes[name]['connections'][t].append(partner)
+        else:
+            print(f"{partner} was already in {name}'s list of {t}")
+    return True
 
 
 def add_node_json(name):
@@ -241,6 +263,14 @@ def main():
         load()
         verify_connections(fix=True)
         save()
+    elif sys.argv[1] == 'link':
+        if len(sys.argv) == 5:
+            load()
+            success = link(sys.argv[2], sys.argv[3], sys.argv[4])
+            if success:
+                save()
+        else:
+            print("Please specify nodes a, b, and connection type")
     elif sys.argv[1] == 'add':
         if len(sys.argv) > 2:
             for name in sys.argv[2:]:
